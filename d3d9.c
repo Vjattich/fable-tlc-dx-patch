@@ -1,17 +1,5 @@
 /*
  * Fable: The Lost Chapters - windowed / borderless proxy d3d9.dll
- *
- * Drop next to Fable.exe. The game loads this instead of the system d3d9.dll.
- *  - Forces every device (CreateDevice/Reset) into D3D windowed mode, so the
- *    game never takes exclusive fullscreen -> Alt+Tab is instant.
- *  - Starts in borderless fullscreen (configurable in d3d9proxy.ini).
- *  - Alt+Enter toggles borderless fullscreen <-> normal window.
- *  - The game only gets the mouse while its window is focused and the cursor
- *    is inside the game area, so after Alt+Tab the title bar and borders work
- *    right away. Holding Alt in window mode also releases the mouse
- *    (Alt+drag anywhere moves the window).
- *  - Logs what happens to d3d9proxy.log (only when built with -log).
- *
  * Build (32-bit):  see build.bat
  */
 #define WIN32_LEAN_AND_MEAN
@@ -291,20 +279,6 @@ static HRESULT STDMETHODCALLTYPE HookCreateDevice(IDirect3D9 *d3d, UINT adapter,
     }
     return hr;
 }
-
-/* ------------------------------------------------------------------ mouse */
-/*
- * Fable reads the mouse through DirectInput 8 (exclusive + foreground) and
- * calls SetCursorPos every frame to keep the cursor centered, so the cursor
- * can never reach the window frame. We:
- *  - switch the mouse device to non-exclusive (the real cursor exists),
- *  - decide each poll whether the game "owns" the mouse (captured): window
- *    focused, cursor entered the game area, not being dragged, Alt not held
- *    in window mode,
- *  - when not captured: hand the game empty mouse data, ignore its
- *    SetCursorPos, show the cursor and unclip it,
- *  - when captured: clip the cursor to the game's client area.
- */
 
 static int g_cursorShowCount;   /* ShowCursor(TRUE) calls we owe back */
 
